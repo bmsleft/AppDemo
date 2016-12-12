@@ -19,7 +19,8 @@
             android:minHeight="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:title="BMSAppDemo">
         </android.support.v7.widget.Toolbar>
 
         <android.support.design.widget.TabLayout
@@ -28,7 +29,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <android.support.v4.view.ViewPager
         style="@style/mainPaperStyle"
         android:id="@+id/main_page"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -38,7 +39,7 @@
             android:layout_height="wrap_content"
             android:text="@string/my_test"
             android:textSize="20sp"/>
-    </android.support.v4.widget.NestedScrollView>
+    </android.support.v4.view.ViewPager>
 
     <android.support.design.widget.FloatingActionButton
         style="@style/floatingActionButtonStyle"
