@@ -1,4 +1,4 @@
-package com.demo.bms.appdemo;
+package com.demo.bms.appdemo.ui.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.demo.bms.appdemo.R;
 
 /**
  * Created by bms on 16-12-12.
