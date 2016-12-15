@@ -25,6 +25,10 @@
         <activity android:name=".ui.activity.PrefsActivity"
             android:label="@string/action_settings"
             android:theme="@style/Theme.AppDemo.Prefs"/>
+
+        <activity android:name=".ui.activity.PickDateActivity"
+            android:label="@string/action_pick_date"
+            android:alwaysRetainTaskState="true"/>
     </application>
 
 </manifest>

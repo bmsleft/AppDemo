@@ -40,6 +40,7 @@ public class MainActivity extends BaseActivity {
 
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab_pick_data);
         assert floatingActionButton != null;
+        floatingActionButton.setOnClickListener(view -> prepareIntent(PickDateActivity.class));
 
     }
 

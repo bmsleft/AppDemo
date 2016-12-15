@@ -30,15 +30,15 @@ public class PrefsFragment extends PreferenceFragment
         addPreferencesFromResource(R.xml.prefs);
         findPreference("about").setOnPreferenceClickListener(this);
 
-        if (!Check.isAppInstalled()) {
-            ((PreferenceCategory) findPreference("settings_settings")).removePreference(findPreference("using_client?"));
-        }
-
-        if (!BmsZhihuApp.getSharedPreferences()
-            .getBoolean(Constants.SharedPreferencesKeys.KEY_SHOULD_ENABLE_ACCELERATE_SERVER, false)) {
-            ((PreferenceScreen) findPreference("preference_screen"))
-                    .removePreference(findPreference("settings_network_settings"));
-        }
+//        if (!Check.isAppInstalled()) {
+//            ((PreferenceCategory) findPreference("settings_settings")).removePreference(findPreference("using_client?"));
+//        }
+//
+//        if (!BmsZhihuApp.getSharedPreferences()
+//            .getBoolean(Constants.SharedPreferencesKeys.KEY_SHOULD_ENABLE_ACCELERATE_SERVER, false)) {
+//            ((PreferenceScreen) findPreference("preference_screen"))
+//                    .removePreference(findPreference("settings_network_settings"));
+//        }
 
     }
 
