@@ -1,7 +1,11 @@
 package com.demo.bms.appdemo.adapter;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,9 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.annimon.stream.Stream;
+import com.demo.bms.appdemo.BmsZhihuApp;
 import com.demo.bms.appdemo.R;
 import com.demo.bms.appdemo.bean.DailyNews;
+import com.demo.bms.appdemo.bean.Question;
+import com.demo.bms.appdemo.support.Check;
 import com.demo.bms.appdemo.support.Constants;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -69,6 +78,104 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.CardViewHolder
         notifyDataSetChanged();
     }
 
+    private void browse(Context context, int position) {
+        DailyNews dailyNews = newsList.get(position);
+
+        if (dailyNews.hasMultipleQuestions()) {
+            AlertDialog dailog = createDialog(context,
+                    dailyNews,
+                    makeGoToZhihuDialogClickListener(context, dailyNews));
+            dailog.show();
+        } else {
+            goToZhihu(context, dailyNews.getQuestions().get(0).getUrl());
+        }
+    }
+
+    private void share(Context context, int position) {
+        DailyNews dailyNews = newsList.get(position);
+
+        if (dailyNews.hasMultipleQuestions()) {
+            AlertDialog dialog = createDialog(context,
+                    dailyNews,
+                    makeShareQuestionDailogClickListener(context, dailyNews));
+            dialog.show();
+        } else {
+            shareQuestion(context,
+                    dailyNews.getQuestions().get(0).getTitle(),
+                    dailyNews.getQuestions().get(0).getUrl());
+        }
+    }
+
+
+
+    private AlertDialog createDialog(Context context, DailyNews dailyNews, DialogInterface.OnClickListener listener) {
+        String[] questionTitles = getQuestionTitleAsStringArray(dailyNews);
+        return new AlertDialog.Builder(context)
+                .setTitle(dailyNews.getDailyTitle())
+                .setItems(questionTitles, listener)
+                .create();
+    }
+
+    private DialogInterface.OnClickListener makeGoToZhihuDialogClickListener(Context context, DailyNews dailyNews) {
+        return ((dialog, which) -> {
+            String questionUrl = dailyNews.getQuestions().get(which).getUrl();
+            goToZhihu(context, questionUrl);
+        });
+    }
+
+    private DialogInterface.OnClickListener makeShareQuestionDailogClickListener(Context context, DailyNews dailyNews) {
+        return ((dialog, which) -> {
+            String questionTitle = dailyNews.getQuestions().get(which).getTitle(),
+                    questionUrl = dailyNews.getQuestions().get(which).getUrl();
+
+            shareQuestion(context, questionTitle, questionUrl);
+        }
+        );
+    }
+
+
+    private void goToZhihu(Context context, String url) {
+        if (!BmsZhihuApp.getSharedPreferences()
+                .getBoolean(Constants.SharedPreferencesKeys.KEY_SHOULD_USE_CLIENT, false)) {
+            opingUsingBrowser(context, url);
+        } else if (Check.isAppInstalled()) {
+            openUsingZhihuClient(context, url);
+        } else {
+            opingUsingBrowser(context, url);
+        }
+    }
+
+
+    private void opingUsingBrowser(Context context, String url) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+
+        if (Check.isIntentSafe(browserIntent)) {
+            context.startActivity(browserIntent);
+        } else {
+            Toast.makeText(context, context.getString(R.string.no_browser), Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private void openUsingZhihuClient(Context context, String url) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        browserIntent.setPackage(Constants.Information.ZHIHU_PACKAGE_ID);
+        context.startActivity(browserIntent);
+    }
+
+    private void shareQuestion(Context context, String questionTitle, String questionUrl) {
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("text/plain");
+//        share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        share.putExtra(Intent.EXTRA_TEXT,
+                questionTitle + " " + questionUrl + Constants.Strings.SHARE_FROM_ZHIHU);
+        context.startActivity(Intent.createChooser(share, context.getString(R.string.share_to)));
+    }
+
+    private String[] getQuestionTitleAsStringArray(DailyNews dailyNews) {
+        return Stream.of(dailyNews.getQuestions()).map(Question::getTitle).toArray(String[]::new);
+    }
+
     @Override
     public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final Context context = parent.getContext();
@@ -78,7 +185,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.CardViewHolder
         return new CardViewHolder(itemView, new CardViewHolder.ClickResponseListener() {
             @Override
             public void onWholeClick(int position) {
-
+                browse(context, position);
             }
 
             @Override
@@ -89,7 +196,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.CardViewHolder
                 popupMenu.setOnMenuItemClickListener(item -> {
                     switch (item.getItemId()) {
                         case R.id.action_share_url:
-                            ///
+                            share(context, position);
                             break;
                     }
                     return true;
