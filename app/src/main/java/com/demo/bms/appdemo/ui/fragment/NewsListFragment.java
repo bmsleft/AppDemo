@@ -67,7 +67,7 @@ public class NewsListFragment extends Fragment
         mRecyclerView.setLayoutManager(llm);
 
         // to add para
-        mAdapter = new NewsAdapter();
+        mAdapter = new NewsAdapter(newsList);
         mRecyclerView.setAdapter(mAdapter);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);

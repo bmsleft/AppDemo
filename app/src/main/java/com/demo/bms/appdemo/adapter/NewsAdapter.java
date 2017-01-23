@@ -54,7 +54,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.CardViewHolder
 
     private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
 
-    NewsAdapter(List<DailyNews> newsList) {
+    public NewsAdapter(List<DailyNews> newsList) {
         this.newsList = newsList;
         setHasStableIds(true);
     }
