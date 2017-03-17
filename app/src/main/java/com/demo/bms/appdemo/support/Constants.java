@@ -1,8 +1,12 @@
 package com.demo.bms.appdemo.support;
 
+import com.demo.bms.appdemo.bean.DailyNews;
+import com.google.gson.reflect.TypeToken;
+
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -25,11 +29,11 @@ public final class Constants {
         public static final Date birthday = new java.util.Date(113, 4, 19); // May 19th, 2013
     }
 
-//    public static final class Types {
-//        public static final Type newsListType = new TypeToken<List<DailyNews>>() {
-//
-//        }.getType();
-//    }
+    public static final class Types {
+        public static final Type newsListType = new TypeToken<List<DailyNews>>() {
+
+        }.getType();
+    }
 
     public static final class Strings {
         public static final String ZHIHU_QUESTION_LINK_PREFIX = "http://www.zhihu.com/question/";

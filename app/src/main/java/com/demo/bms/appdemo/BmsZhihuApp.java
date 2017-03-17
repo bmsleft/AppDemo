@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.demo.bms.appdemo.db.DailyNewsDataSource;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -16,10 +17,12 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 public class BmsZhihuApp extends Application {
     private static BmsZhihuApp applicationContext;
+    private static DailyNewsDataSource dataSource;
 
     public static BmsZhihuApp getInstance() {
         return applicationContext;
     }
+    public static DailyNewsDataSource getDataSource() { return dataSource; }
 
     @Override
     public void onCreate() {

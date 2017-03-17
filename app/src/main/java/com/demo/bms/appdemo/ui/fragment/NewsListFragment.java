@@ -10,14 +10,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.demo.bms.appdemo.BmsZhihuApp;
 import com.demo.bms.appdemo.R;
 import com.demo.bms.appdemo.adapter.NewsAdapter;
 import com.demo.bms.appdemo.bean.DailyNews;
+import com.demo.bms.appdemo.observable.NewsListFromAccelerateServerObservable;
 import com.demo.bms.appdemo.support.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
 import rx.Observer;
 
 
@@ -81,6 +84,27 @@ public class NewsListFragment extends Fragment
     @Override
     public void onRefresh() {
 
+    }
+
+    private void doRefresh() {
+
+    }
+
+    private Observable<List<DailyNews>> getNewsListObservable() {
+        if (shouleSubscribeToZhuhu()) {
+            return NewsListFromAccelerateServerObservable.ofDate(date);
+        } else {
+            return NewsListFromAccelerateServerObservable.ofDate(date);
+        }
+    }
+
+    private boolean shouleSubscribeToZhuhu() {
+        return isToday || !shouldUseAccelerateServer();
+    }
+
+    private boolean shouldUseAccelerateServer() {
+        return BmsZhihuApp.getSharedPreferences()
+                .getBoolean(Constants.SharedPreferencesKeys.KEY_SHOULD_USE_ACCELERATE_SERVER, false);
     }
 
     @Override
