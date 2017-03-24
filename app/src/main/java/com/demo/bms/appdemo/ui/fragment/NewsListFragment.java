@@ -15,13 +15,19 @@ import com.demo.bms.appdemo.R;
 import com.demo.bms.appdemo.adapter.NewsAdapter;
 import com.demo.bms.appdemo.bean.DailyNews;
 import com.demo.bms.appdemo.observable.NewsListFromAccelerateServerObservable;
+import com.demo.bms.appdemo.observable.NewsListFromDatabaseObservable;
+import com.demo.bms.appdemo.observable.NewsListFromZhihuObservable;
 import com.demo.bms.appdemo.support.Constants;
+import com.demo.bms.appdemo.ui.activity.BaseActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 /**
@@ -82,23 +88,53 @@ public class NewsListFragment extends Fragment
     }
 
     @Override
-    public void onRefresh() {
+    public void onResume() {
+        super.onResume();
 
+        NewsListFromDatabaseObservable.ofDate(date)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this);
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        refreshIf(shouldRefreshOnVisibilityChange(isVisibleToUser));
+    }
+
+    private void refreshIf(boolean prerequisite) {
+        if (prerequisite) {
+            doRefresh();
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        doRefresh();
     }
 
     private void doRefresh() {
+        getNewsListObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this);
+
+        if (mSwipeRefreshLayout != null) {
+            mSwipeRefreshLayout.setRefreshing(true);
+        }
 
     }
 
     private Observable<List<DailyNews>> getNewsListObservable() {
-        if (shouleSubscribeToZhuhu()) {
-            return NewsListFromAccelerateServerObservable.ofDate(date);
+        if (shouldSubscribeToZhihu()) {
+            return NewsListFromZhihuObservable.ofDate(date);
         } else {
             return NewsListFromAccelerateServerObservable.ofDate(date);
         }
     }
 
-    private boolean shouleSubscribeToZhuhu() {
+    private boolean shouldSubscribeToZhihu() {
         return isToday || !shouldUseAccelerateServer();
     }
 
@@ -107,18 +143,35 @@ public class NewsListFragment extends Fragment
                 .getBoolean(Constants.SharedPreferencesKeys.KEY_SHOULD_USE_ACCELERATE_SERVER, false);
     }
 
+    private boolean shouldAutoRefresh() {
+        return BmsZhihuApp.getSharedPreferences()
+                .getBoolean(Constants.SharedPreferencesKeys.KEY_SHOULD_AUTO_REFRESH, true);
+    }
+
+    private boolean shouldRefreshOnVisibilityChange(boolean isVisibleToUser) {
+        return isVisibleToUser && shouldAutoRefresh() && !isRefreshed;
+    }
+
     @Override
     public void onNext(List<DailyNews> dailyNewses) {
-
+        this.newsList = dailyNewses;
     }
 
     @Override
     public void onError(Throwable e) {
-
+        mSwipeRefreshLayout.setRefreshing(false);
+        if (isAdded()) {
+            ((BaseActivity) getActivity()).showSnackBar(R.string.network_error);
+        }
     }
 
     @Override
     public void onCompleted() {
+        isRefreshed = true;
+
+        mSwipeRefreshLayout.setRefreshing(false);
+        mAdapter.updateNewsList(newsList);
+
 
     }
 }
